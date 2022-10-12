@@ -1,16 +1,24 @@
-# flutter_vimigo
+![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)
+## zk.zulkamal@gmail.com 
 
-A new Flutter project.
+# Vimigo Flutter Developer Engineer Entry Assessment
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## Storyboard
 
-A few resources to get you started if this is your first Flutter project:
+- Users able to see a **sortable list** based on the data set provided.
+- All the data time format should be display in **d MMM Y hh:mm a** format.
+- Users are able to search through the list based on the keyword they key in.
+- Users able to add a new contact information into the sortable list.
+- When user successfully add new contact to the list, an indicator should be display that user had successfully completed the action.
+- Users able to click the particular contact to see the details of contact in another page
+- When a user first opens up the app, an onboarding screen / introduction screenshould be shown to educate users how to use the app.
+- Display an animation using a sprite sheet that is provided in the link below on the right bottom of the app.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Dependencies
+- smooth_page_indicator - 'Beautify' the onboaring screen
+- intl - DateTime management
+- sqflite - Local database
+- shared_preferences - Persistent storage
+- fluttertoast - Show toast message
+- flame - Animating spritesheet
