@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_vimigo/constant.dart';
-import 'package:flutter_vimigo/view/home/home.dart';
-import 'package:flutter_vimigo/view/onboard/onboard_model.dart';
+import 'package:flutter_vimigo/screens/home/home.dart';
+import 'package:flutter_vimigo/screens/onboard/onboard_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -20,10 +19,10 @@ class _OnboardState extends State<Onboard> {
   @override
   void dispose() {
     onboardController.dispose();
-
     super.dispose();
   }
 
+  //SharedPreference for 'one time view' onboarding screen
   _storeOnBoardInfo() async {
     int isViewed = 1;
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -34,9 +33,11 @@ class _OnboardState extends State<Onboard> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(children: [
+      // PageView builder based on onboard model
       PageView.builder(
         itemCount: screens.length,
         controller: onboardController,
+        // Check if on first/final page of pageview
         onPageChanged: (value) {
           if (value == 2) {
             setState(() {
@@ -89,6 +90,7 @@ class _OnboardState extends State<Onboard> {
                       70,
                     ),
                   ),
+                  // Jump to page(?) when button is tapped
                   onPressed: () => _isFinished
                       ? onboardController.jumpToPage(0)
                       : onboardController.jumpToPage(2),
@@ -110,6 +112,7 @@ class _OnboardState extends State<Onboard> {
                       70,
                     ),
                   ),
+                  // Jump to page(?) / HomeScreen when button is tapped
                   onPressed: () async {
                     _isFinished
                         ? _storeOnBoardInfo().then((value) =>

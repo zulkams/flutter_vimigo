@@ -11,6 +11,7 @@ class OnboardModel {
   });
 }
 
+// Data of Text and background color of onboaring screen
 List<OnboardModel> screens = <OnboardModel>[
   OnboardModel(
       title: "Create new user contact by tapping on the orange button!",

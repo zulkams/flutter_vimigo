@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+// All constants used in app
+
 final kBackgroundColor = Colors.grey[200];
 final kPrimaryColor = Colors.blueAccent[100];
-final kSecondaryColor = Colors.blueAccent[100];
 final kToastColor = Colors.green[200];
 const kButtonColor = Color(0xfff16b58);
 final onboardBackground1 = Colors.blueAccent[100];

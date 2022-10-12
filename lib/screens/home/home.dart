@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vimigo/constant.dart';
-import 'package:flutter_vimigo/view/details/details.dart';
+import 'package:flutter_vimigo/screens/details/details.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -129,77 +129,6 @@ class _HomePageState extends State<HomePage> {
     _refreshData();
   }
 
-  // This function will be triggered when the floating button is pressed
-  void showMyForm() async {
-    _userController.text = '';
-    _phoneController.text = '';
-
-    //ModalBottomSheet for adding new user
-    showModalBottomSheet(
-        context: context,
-        elevation: 5,
-        isDismissible: true,
-        isScrollControlled: true,
-        builder: (_) => Container(
-            padding: EdgeInsets.only(
-              top: 15,
-              left: 15,
-              right: 15,
-              // prevent the keyboard from covering the text fields
-              bottom: MediaQuery.of(context).viewInsets.bottom + 120,
-            ),
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  TextFormField(
-                    validator: formValidator,
-                    controller: _userController,
-                    keyboardType: TextInputType.name,
-                    decoration: const InputDecoration(hintText: 'Name'),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  TextFormField(
-                    validator: formValidator,
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(hintText: 'Phone'),
-                  ),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: kPrimaryColor),
-                        onPressed: () async {
-                          if (formKey.currentState!.validate()) {
-                            await addItem();
-
-                            // Clear the text fields
-                            setState(() {
-                              _userController.clear();
-                              _phoneController.clear();
-                            });
-
-                            // Close the bottom sheet
-                            // ignore: use_build_context_synchronously
-                            Navigator.pop(context);
-                          }
-                          // Save new data
-                        },
-                        child: const Text('Add New User'),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )));
-  }
-
   // Texfield validation
   String? formValidator(String? value) {
     if (value!.isEmpty) return 'Field is Required';
@@ -284,6 +213,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(10.0),
+                    // search bar
                     child: TextField(
                       controller: searchText,
                       onChanged: (value) {
@@ -308,17 +238,17 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Expanded(
+                    // if no data = display 'No Contact Found'
                     child: displayData.isEmpty
                         ? const Center(child: Text("No Contact Found"))
                         // generate listview based on data
                         : ListView.builder(
                             itemCount: displayData.length,
                             itemBuilder: (context, index) {
+                              // sort data ascending or descending
                               final sortedItems = _isDescending
                                   ? displayData.reversed.toList()
                                   : displayData;
-
-                              final sortedData = sortedItems;
 
                               return Card(
                                 color: Colors.white,
@@ -326,20 +256,20 @@ class _HomePageState extends State<HomePage> {
                                     horizontal: 8, vertical: 5),
                                 elevation: 1,
                                 child: ListTile(
-                                  title: Text(sortedData[index]['user']),
-                                  subtitle: Text(sortedData[index]['phone']),
+                                  title: Text(sortedItems[index]['user']),
+                                  subtitle: Text(sortedItems[index]['phone']),
                                   trailing: Text(_convertDate(
-                                      sortedData[index]['checkIn'])),
+                                      sortedItems[index]['checkIn'])),
                                   onTap: () {
                                     Navigator.of(context).push(
                                         MaterialPageRoute(
                                             builder: ((context) => DetailsPage(
-                                                userValue: sortedData[index]
+                                                userValue: sortedItems[index]
                                                     ['user'],
-                                                phoneValue: sortedData[index]
+                                                phoneValue: sortedItems[index]
                                                     ['phone'],
                                                 checkInValue: _convertDate(
-                                                    sortedData[index]
+                                                    sortedItems[index]
                                                         ['checkIn'])))));
                                   },
                                 ),
@@ -356,22 +286,24 @@ class _HomePageState extends State<HomePage> {
                   child: FloatingActionButton(
                     backgroundColor: kButtonColor,
                     child: const Icon(Icons.add),
-                    onPressed: () => showMyForm(),
+                    onPressed: () => showMyForm(), //show bottomModalSheet
                   ),
                 ),
               ),
               Align(
                 alignment: Alignment.bottomRight,
-                child: Container(
+                child: SizedBox(
                   height: MediaQuery.of(context).size.height * 0.12,
                   width: MediaQuery.of(context).size.height * 0.12,
+                  // Animation based on given spritesheet
                   child: SpriteAnimationWidget.asset(
-                    path: 'animation.png',
+                    path: 'animation.png', //given spritesheet
                     data: SpriteAnimationData.sequenced(
-                      amount: 35,
-                      amountPerRow: 12,
-                      stepTime: 0.1,
-                      textureSize: Vector2(170, 171),
+                      amount: 35, // total of sprites in the spritesheet
+                      amountPerRow: 12, // total of sprites in a row
+                      stepTime: 0.1, // steptime 0.1s
+                      textureSize: Vector2(
+                          170, 171), // size of every sprite (170px*171px)
                     ),
                     playing: true,
                     anchor: Anchor.center,
@@ -380,5 +312,76 @@ class _HomePageState extends State<HomePage> {
               )
             ]),
     );
+  }
+
+  // This function will be triggered when the floating button is pressed
+  void showMyForm() async {
+    _userController.text = '';
+    _phoneController.text = '';
+
+    //ModalBottomSheet for adding new user
+    showModalBottomSheet(
+        context: context,
+        elevation: 5,
+        isDismissible: true,
+        isScrollControlled: true,
+        builder: (_) => Container(
+            padding: EdgeInsets.only(
+              top: 15,
+              left: 15,
+              right: 15,
+              // prevent the keyboard from covering the text fields
+              bottom: MediaQuery.of(context).viewInsets.bottom + 120,
+            ),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  TextFormField(
+                    validator: formValidator,
+                    controller: _userController,
+                    keyboardType: TextInputType.name,
+                    decoration: const InputDecoration(hintText: 'Name'),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    validator: formValidator,
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(hintText: 'Phone'),
+                  ),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: kPrimaryColor),
+                        onPressed: () async {
+                          if (formKey.currentState!.validate()) {
+                            await addItem();
+
+                            // Clear the text fields
+                            setState(() {
+                              _userController.clear();
+                              _phoneController.clear();
+                            });
+
+                            // Close the bottom sheet
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
+                          }
+                          // Save new data
+                        },
+                        child: const Text('Add New User'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )));
   }
 }
