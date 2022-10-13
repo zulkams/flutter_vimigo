@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vimigo/constant.dart';
+import 'package:flutter_vimigo/model/contact.dart';
 import 'package:flutter_vimigo/screens/details/details.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -90,13 +91,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   // This function is used to fetch all data from the database
-  void _refreshData() async {
+  /* void _refreshData() async {
     final data = await DatabaseHelper.getItems();
     setState(() {
       displayData = data;
 
       _isLoading = false;
     });
+  } */
+
+  void _refreshData() async {
+    setState(() => _isLoading = true);
+    displayData = await DatabaseHelper.instance.getItems();
+
+    setState(() => _isLoading = false);
   }
 
   // This function is used to initiate the predefined dataset
@@ -120,11 +128,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   // To generate all predefined contacts data from the given dataset
-  void _generateContacts() async {
+  /* void _generateContacts() async {
     // data generation
     for (var i = 0; i < _initialData.length; i++) {
       await DatabaseHelper.createItem(_initialData[i]['user'],
           _initialData[i]['phone'], _initialData[i]['checkIn']);
+    }
+    _refreshData();
+  } */
+
+  void _generateContacts() async {
+    // data generation
+    for (var i = 0; i < _initialData.length; i++) {
+      final contact = Contact(
+          user: _initialData[i]['user'],
+          phone: _initialData[i]['phone'],
+          checkIn: _initialData[i]['checkIn']);
+
+      await DatabaseHelper.instance.createItem(contact);
     }
     _refreshData();
   }
@@ -144,9 +165,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Add a new user to the database
-  Future<void> addItem() async {
+  /* Future<void> addItem() async {
     await DatabaseHelper.createItem(
         _userController.text, _phoneController.text, createDate);
+
+    showToast();
+    _refreshData();
+  } */
+
+  Future addItem() async {
+    final contact = Contact(
+        user: _userController.text,
+        phone: _phoneController.text,
+        checkIn: createDate);
+
+    await DatabaseHelper.instance.createItem(contact);
 
     showToast();
     _refreshData();
@@ -163,12 +196,16 @@ class _HomePageState extends State<HomePage> {
 
   // database filtering for Search feature
   void filterSearch(String query) async {
-    final data = await DatabaseHelper.getItems();
+    final data = await DatabaseHelper.instance.getItems();
 
     if (query.isNotEmpty) {
       var dummyList = [];
       for (var i = 0; i < data.length; i++) {
-        if (data[i]['user'].toLowerCase().contains(query.toLowerCase())) {
+        if (data[i]
+            .user
+            .toString()
+            .toLowerCase()
+            .contains(query.toLowerCase())) {
           dummyList.add(data[i]);
         }
       }
