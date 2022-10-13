@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vimigo/constant.dart';
-import 'package:flutter_vimigo/model/contact.dart';
+import 'package:flutter_vimigo/model/contact_model.dart';
 import 'package:flutter_vimigo/screens/details/details.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';

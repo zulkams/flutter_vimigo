@@ -1,4 +1,4 @@
-import 'package:flutter_vimigo/model/contact.dart';
+import 'package:flutter_vimigo/model/contact_model.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
