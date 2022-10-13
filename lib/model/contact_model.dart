@@ -1,15 +1,15 @@
-final String tableName = 'contacts';
+const String tableName = 'contacts';
 
 class ContactFields {
   static final List<String> values = [
-    /// Add all fields
+    // Add all fields
     id, user, phone, checkIn
   ];
 
-  static final String id = 'id';
-  static final String user = 'user';
-  static final String phone = 'phone';
-  static final String checkIn = 'checkIn';
+  static const String id = 'id';
+  static const String user = 'user';
+  static const String phone = 'phone';
+  static const String checkIn = 'checkIn';
 }
 
 class Contact {

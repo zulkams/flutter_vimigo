@@ -81,7 +81,6 @@ class _HomePageState extends State<HomePage> {
   int? isStored; // sharedPreference purpose
   bool _isLoading = true;
   bool _isAscending = true;
-  bool _isByDate = false;
 
   final TextEditingController searchText = TextEditingController();
   final TextEditingController _userController = TextEditingController();
@@ -96,27 +95,11 @@ class _HomePageState extends State<HomePage> {
     _initializeData(); // Load the data when the app starts
   }
 
-  // This function is used to fetch all data from the database
-  /* void _refreshData() async {
-    final data = await DatabaseHelper.getContact();
-    setState(() {
-      displayData = data;
-
-      _isLoading = false;
-    });
-  } */
-
-  _refreshDataByDate() async {
-    displayDataByDate = await DatabaseHelper.instance.getContactByDate();
-    return displayDataByDate;
-  }
-
+  // get all contacts data from the database
   void _refreshData() async {
     setState(() => _isLoading = true);
     displayData = await DatabaseHelper.instance.getContact();
-    displayDataByDate = await DatabaseHelper.instance.getContactByDate();
 
-    print(displayDataByDate);
     setState(() => _isLoading = false);
   }
 
@@ -141,15 +124,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   // To generate all predefined contacts data from the given dataset
-  /* void _generateContacts() async {
-    // data generation
-    for (var i = 0; i < _initialData.length; i++) {
-      await DatabaseHelper.createContact(_initialData[i]['user'],
-          _initialData[i]['phone'], _initialData[i]['checkIn']);
-    }
-    _refreshData();
-  } */
-
   void _generateContacts() async {
     // data generation
     for (var i = 0; i < _initialData.length; i++) {
@@ -178,13 +152,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Add a new user to the database
-  /* Future<void> addItem() async {
-    await DatabaseHelper.createContact(
-        _userController.text, _phoneController.text, createDate);
-
-    showToast();
-    _refreshData();
-  } */
 
   Future addItem() async {
     final contact = Contact(
@@ -315,12 +282,9 @@ class _HomePageState extends State<HomePage> {
                             itemCount: displayData.length,
                             itemBuilder: (context, index) {
                               // sort data ascending or descending
-                              final sortedData =
-                                  _isByDate ? displayDataByDate : displayData;
-
                               final sortedItems = !_isAscending
-                                  ? sortedData.reversed.toList()
-                                  : sortedData;
+                                  ? displayData.reversed.toList()
+                                  : displayData;
 
                               return Card(
                                 color: Colors.white,

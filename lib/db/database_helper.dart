@@ -1,5 +1,4 @@
 import 'package:flutter_vimigo/model/contact_model.dart';
-import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -45,18 +44,7 @@ class DatabaseHelper {
   Future<List<Contact>> getContact() async {
     final db = await instance.database;
 
-    final orderBy = '${ContactFields.id} ASC';
-
-    final result = await db.query(tableName, orderBy: orderBy);
-
-    return result.map((json) => Contact.fromJson(json)).toList();
-  }
-
-  // get all user contact by Date
-  Future<List<Contact>> getContactByDate() async {
-    final db = await instance.database;
-
-    final orderBy = '${ContactFields.checkIn} ASC';
+    const orderBy = '${ContactFields.id} ASC';
 
     final result = await db.query(tableName, orderBy: orderBy);
 

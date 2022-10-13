@@ -97,7 +97,8 @@ class _DetailsPageState extends State<DetailsPage> {
                             // display received data from the previous screen
                             Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text(widget.idValue.toString()),
+                              child: Text(widget.idValue
+                                  .toString()), //int change to String
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
