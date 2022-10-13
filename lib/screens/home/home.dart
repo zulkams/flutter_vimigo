@@ -77,6 +77,7 @@ class _HomePageState extends State<HomePage> {
   final formKey = GlobalKey<FormState>();
   List<dynamic> displayData = []; //final data that will be displayed
   List<dynamic> displayDataByDate = []; //final data by date
+
   int? isStored; // sharedPreference purpose
   bool _isLoading = true;
   bool _isAscending = true;
@@ -114,6 +115,8 @@ class _HomePageState extends State<HomePage> {
     setState(() => _isLoading = true);
     displayData = await DatabaseHelper.instance.getContact();
     displayDataByDate = await DatabaseHelper.instance.getContactByDate();
+
+    print(displayDataByDate);
     setState(() => _isLoading = false);
   }
 
@@ -207,56 +210,30 @@ class _HomePageState extends State<HomePage> {
   // database filtering for Search feature
   void filterSearch(String query) async {
     final data = await DatabaseHelper.instance.getContact();
-    final dataByDate = await DatabaseHelper.instance.getContactByDate();
 
-    if (_isByDate == true) {
-      if (query.isNotEmpty) {
-        var dummyList = [];
-        for (var i = 0; i < dataByDate.length; i++) {
-          if (dataByDate[i]
-              .user
-              .toString()
-              .toLowerCase()
-              .contains(query.toLowerCase())) {
-            dummyList.add(dataByDate[i]);
-          }
+    if (query.isNotEmpty) {
+      var dummyList = [];
+      for (var i = 0; i < data.length; i++) {
+        if (data[i]
+            .user
+            .toString()
+            .toLowerCase()
+            .contains(query.toLowerCase())) {
+          dummyList.add(data[i]);
         }
-        setState(
-          () {
-            displayData = dummyList;
-          },
-        );
-      } else {
-        setState(
-          () {
-            _refreshData();
-          },
-        );
       }
+      setState(
+        () {
+          displayData = dummyList;
+        },
+      );
     } else {
-      if (query.isNotEmpty) {
-        var dummyList = [];
-        for (var i = 0; i < data.length; i++) {
-          if (data[i]
-              .user
-              .toString()
-              .toLowerCase()
-              .contains(query.toLowerCase())) {
-            dummyList.add(data[i]);
-          }
-        }
-        setState(
-          () {
-            displayData = dummyList;
-          },
-        );
-      } else {
-        setState(
-          () {
-            _refreshData();
-          },
-        );
-      }
+      setState(
+        () {
+          _refreshData();
+          searchText.clear();
+        },
+      );
     }
   }
 
@@ -267,25 +244,16 @@ class _HomePageState extends State<HomePage> {
         title: const Text('VIMIGO CONTACTS'),
         centerTitle: true,
         backgroundColor: kPrimaryColor,
-        leading: IconButton(
-            onPressed: (() {
-              _isAscending = !_isAscending;
-            }),
-            icon: SvgPicture.asset(
-              'assets/icons/sort-alt.svg',
-              color: Colors.white,
-            )),
         actions: [
           IconButton(
               onPressed: () {
                 // sort Ascending/Descending
                 setState(() {
-                  /* _refreshDataByDate(); */
-                  _isByDate = !_isByDate;
+                  _isAscending = !_isAscending;
                 });
               },
               icon: SvgPicture.asset(
-                'assets/icons/sort-numeric-down.svg',
+                'assets/icons/sort-alt.svg',
                 color: Colors.white,
               ))
         ],
@@ -298,7 +266,8 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 10.0),
                     // search bar
                     child: TextField(
                       controller: searchText,
@@ -323,6 +292,20 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Container(
+                      height: 30,
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Center(
+                          child: _isAscending
+                              ? const Text('Ascending Order by ID')
+                              : const Text('Descending Order by ID')),
+                    ),
+                  ),
                   Expanded(
                     // if no data = display 'No Contact Found'
                     child: displayData.isEmpty
@@ -332,9 +315,12 @@ class _HomePageState extends State<HomePage> {
                             itemCount: displayData.length,
                             itemBuilder: (context, index) {
                               // sort data ascending or descending
-                              final sortedItems = _isAscending
-                                  ? displayDataByDate
-                                  : displayData;
+                              final sortedData =
+                                  _isByDate ? displayDataByDate : displayData;
+
+                              final sortedItems = !_isAscending
+                                  ? sortedData.reversed.toList()
+                                  : sortedData;
 
                               return Card(
                                 color: Colors.white,
@@ -342,27 +328,28 @@ class _HomePageState extends State<HomePage> {
                                     horizontal: 8, vertical: 5),
                                 elevation: 1,
                                 child: ListTile(
-                                  title: Text(sortedItems[index].user),
-                                  subtitle: Text(sortedItems[index].phone),
+                                  title: Text(
+                                      '${sortedItems[index].id} ${sortedItems[index].user}'),
+                                  subtitle: Text('${sortedItems[index].phone}'),
                                   trailing: Text(
-                                      _convertDate(sortedItems[index].checkIn)),
+                                      '${_convertDate(sortedItems[index].checkIn)}'),
                                   onTap: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: ((context) => DetailsPage(
-                                                userValue:
-                                                    sortedItems[index].user,
-                                                phoneValue:
-                                                    sortedItems[index].phone,
-                                                checkInValue: _convertDate(
-                                                    sortedItems[index]
-                                                        .checkIn)))));
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                        builder: ((context) => DetailsPage(
+                                            idValue: sortedItems[index].id,
+                                            userValue:
+                                                '${sortedItems[index].user}',
+                                            phoneValue:
+                                                '${sortedItems[index].phone}',
+                                            checkInValue:
+                                                '${_convertDate(sortedItems[index].checkIn)}'))));
                                   },
                                 ),
                               );
                             },
                           ),
                   ),
+                  const SizedBox(height: 90)
                 ],
               ),
               Align(

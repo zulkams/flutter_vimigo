@@ -5,10 +5,12 @@ import '../../constant.dart';
 
 class DetailsPage extends StatefulWidget {
   // all passed data from previous screen
+  final int idValue;
   final String userValue, phoneValue, checkInValue;
 
   const DetailsPage(
       {Key? key,
+      required this.idValue,
       required this.userValue,
       required this.phoneValue,
       required this.checkInValue})
@@ -50,6 +52,10 @@ class _DetailsPageState extends State<DetailsPage> {
                           children: const [
                             Padding(
                               padding: EdgeInsets.all(8.0),
+                              child: Text('ID'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
                               child: Text('Name'),
                             ),
                             Padding(
@@ -77,6 +83,10 @@ class _DetailsPageState extends State<DetailsPage> {
                             Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text(':'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(':'),
                             )
                           ],
                         ),
@@ -85,6 +95,10 @@ class _DetailsPageState extends State<DetailsPage> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             // display received data from the previous screen
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(widget.idValue.toString()),
+                            ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(widget.userValue),
