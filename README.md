@@ -22,3 +22,4 @@
 - shared_preferences - Persistent storage
 - fluttertoast - Show toast message
 - flame - Animating spritesheet
+- flutter_svg - Create icon button using SVG
