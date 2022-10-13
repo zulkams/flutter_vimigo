@@ -1,13 +1,16 @@
 import 'package:flame/components.dart';
 import 'package:flame/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_vimigo/constant.dart';
 import 'package:flutter_vimigo/model/contact_model.dart';
 import 'package:flutter_vimigo/screens/details/details.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../db/database_helper.dart';
+import 'dart:core';
 
 // initial data as stated in Assessment question page 2
 const List<Map<String?, String?>> _initialData = [
@@ -73,9 +76,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final formKey = GlobalKey<FormState>();
   List<dynamic> displayData = []; //final data that will be displayed
+  List<dynamic> displayDataByDate = []; //final data by date
   int? isStored; // sharedPreference purpose
   bool _isLoading = true;
-  bool _isDescending = false;
+  bool _isAscending = true;
+  bool _isByDate = false;
 
   final TextEditingController searchText = TextEditingController();
   final TextEditingController _userController = TextEditingController();
@@ -100,10 +105,15 @@ class _HomePageState extends State<HomePage> {
     });
   } */
 
+  _refreshDataByDate() async {
+    displayDataByDate = await DatabaseHelper.instance.getContactByDate();
+    return displayDataByDate;
+  }
+
   void _refreshData() async {
     setState(() => _isLoading = true);
     displayData = await DatabaseHelper.instance.getContact();
-
+    displayDataByDate = await DatabaseHelper.instance.getContactByDate();
     setState(() => _isLoading = false);
   }
 
@@ -197,29 +207,56 @@ class _HomePageState extends State<HomePage> {
   // database filtering for Search feature
   void filterSearch(String query) async {
     final data = await DatabaseHelper.instance.getContact();
+    final dataByDate = await DatabaseHelper.instance.getContactByDate();
 
-    if (query.isNotEmpty) {
-      var dummyList = [];
-      for (var i = 0; i < data.length; i++) {
-        if (data[i]
-            .user
-            .toString()
-            .toLowerCase()
-            .contains(query.toLowerCase())) {
-          dummyList.add(data[i]);
+    if (_isByDate == true) {
+      if (query.isNotEmpty) {
+        var dummyList = [];
+        for (var i = 0; i < dataByDate.length; i++) {
+          if (dataByDate[i]
+              .user
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase())) {
+            dummyList.add(dataByDate[i]);
+          }
         }
+        setState(
+          () {
+            displayData = dummyList;
+          },
+        );
+      } else {
+        setState(
+          () {
+            _refreshData();
+          },
+        );
       }
-      setState(
-        () {
-          displayData = dummyList;
-        },
-      );
     } else {
-      setState(
-        () {
-          _refreshData();
-        },
-      );
+      if (query.isNotEmpty) {
+        var dummyList = [];
+        for (var i = 0; i < data.length; i++) {
+          if (data[i]
+              .user
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase())) {
+            dummyList.add(data[i]);
+          }
+        }
+        setState(
+          () {
+            displayData = dummyList;
+          },
+        );
+      } else {
+        setState(
+          () {
+            _refreshData();
+          },
+        );
+      }
     }
   }
 
@@ -230,15 +267,27 @@ class _HomePageState extends State<HomePage> {
         title: const Text('VIMIGO CONTACTS'),
         centerTitle: true,
         backgroundColor: kPrimaryColor,
+        leading: IconButton(
+            onPressed: (() {
+              _isAscending = !_isAscending;
+            }),
+            icon: SvgPicture.asset(
+              'assets/icons/sort-alt.svg',
+              color: Colors.white,
+            )),
         actions: [
           IconButton(
               onPressed: () {
                 // sort Ascending/Descending
                 setState(() {
-                  _isDescending = !_isDescending;
+                  /* _refreshDataByDate(); */
+                  _isByDate = !_isByDate;
                 });
               },
-              icon: const Icon(Icons.sort))
+              icon: SvgPicture.asset(
+                'assets/icons/sort-numeric-down.svg',
+                color: Colors.white,
+              ))
         ],
       ),
       body: _isLoading
@@ -283,8 +332,8 @@ class _HomePageState extends State<HomePage> {
                             itemCount: displayData.length,
                             itemBuilder: (context, index) {
                               // sort data ascending or descending
-                              final sortedItems = _isDescending
-                                  ? displayData.reversed.toList()
+                              final sortedItems = _isAscending
+                                  ? displayDataByDate
                                   : displayData;
 
                               return Card(

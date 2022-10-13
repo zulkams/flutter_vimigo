@@ -41,11 +41,22 @@ class DatabaseHelper {
     return contact.copy(id: id);
   }
 
-  // get
+  // get all user contact by ID
   Future<List<Contact>> getContact() async {
     final db = await instance.database;
 
     final orderBy = '${ContactFields.id} ASC';
+
+    final result = await db.query(tableName, orderBy: orderBy);
+
+    return result.map((json) => Contact.fromJson(json)).toList();
+  }
+
+  // get all user contact by Date
+  Future<List<Contact>> getContactByDate() async {
+    final db = await instance.database;
+
+    final orderBy = '${ContactFields.checkIn} ASC';
 
     final result = await db.query(tableName, orderBy: orderBy);
 

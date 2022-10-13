@@ -42,6 +42,7 @@ dependencies:
   shared_preferences:
   fluttertoast:
   flame:
+  flutter_svg:
   
 
 dev_dependencies:
