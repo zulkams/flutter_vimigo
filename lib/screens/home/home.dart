@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
 
   // This function is used to fetch all data from the database
   /* void _refreshData() async {
-    final data = await DatabaseHelper.getItems();
+    final data = await DatabaseHelper.getContact();
     setState(() {
       displayData = data;
 
@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
 
   void _refreshData() async {
     setState(() => _isLoading = true);
-    displayData = await DatabaseHelper.instance.getItems();
+    displayData = await DatabaseHelper.instance.getContact();
 
     setState(() => _isLoading = false);
   }
@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> {
   /* void _generateContacts() async {
     // data generation
     for (var i = 0; i < _initialData.length; i++) {
-      await DatabaseHelper.createItem(_initialData[i]['user'],
+      await DatabaseHelper.createContact(_initialData[i]['user'],
           _initialData[i]['phone'], _initialData[i]['checkIn']);
     }
     _refreshData();
@@ -145,7 +145,7 @@ class _HomePageState extends State<HomePage> {
           phone: _initialData[i]['phone'],
           checkIn: _initialData[i]['checkIn']);
 
-      await DatabaseHelper.instance.createItem(contact);
+      await DatabaseHelper.instance.createContact(contact);
     }
     _refreshData();
   }
@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
 
   // Add a new user to the database
   /* Future<void> addItem() async {
-    await DatabaseHelper.createItem(
+    await DatabaseHelper.createContact(
         _userController.text, _phoneController.text, createDate);
 
     showToast();
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
         phone: _phoneController.text,
         checkIn: createDate);
 
-    await DatabaseHelper.instance.createItem(contact);
+    await DatabaseHelper.instance.createContact(contact);
 
     showToast();
     _refreshData();
@@ -196,7 +196,7 @@ class _HomePageState extends State<HomePage> {
 
   // database filtering for Search feature
   void filterSearch(String query) async {
-    final data = await DatabaseHelper.instance.getItems();
+    final data = await DatabaseHelper.instance.getContact();
 
     if (query.isNotEmpty) {
       var dummyList = [];
