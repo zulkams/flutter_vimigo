@@ -1,12 +1,16 @@
 import 'package:flame/components.dart';
 import 'package:flame/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_vimigo/constant.dart';
+import 'package:flutter_vimigo/model/contact_model.dart';
 import 'package:flutter_vimigo/screens/details/details.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../db/database_helper.dart';
+import 'dart:core';
 
 // initial data as stated in Assessment question page 2
 const List<Map<String?, String?>> _initialData = [
@@ -56,7 +60,7 @@ const List<Map<String?, String?>> _initialData = [
     "checkIn": "2020-08-01 12:10:05"
   },
   {
-    "user": "Chen Saw Ling",
+    "user": "Cheng Sao Long",
     "phone": "016783239",
     "checkIn": "2020-08-23 11:59:05"
   }
@@ -72,9 +76,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final formKey = GlobalKey<FormState>();
   List<dynamic> displayData = []; //final data that will be displayed
+  List<dynamic> displayDataByDate = []; //final data by date
+
   int? isStored; // sharedPreference purpose
   bool _isLoading = true;
-  bool _isDescending = false;
+  bool _isAscending = true;
 
   final TextEditingController searchText = TextEditingController();
   final TextEditingController _userController = TextEditingController();
@@ -89,14 +95,12 @@ class _HomePageState extends State<HomePage> {
     _initializeData(); // Load the data when the app starts
   }
 
-  // This function is used to fetch all data from the database
+  // get all contacts data from the database
   void _refreshData() async {
-    final data = await DatabaseHelper.getItems();
-    setState(() {
-      displayData = data;
+    setState(() => _isLoading = true);
+    displayData = await DatabaseHelper.instance.getContact();
 
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
   }
 
   // This function is used to initiate the predefined dataset
@@ -123,8 +127,12 @@ class _HomePageState extends State<HomePage> {
   void _generateContacts() async {
     // data generation
     for (var i = 0; i < _initialData.length; i++) {
-      await DatabaseHelper.createItem(_initialData[i]['user'],
-          _initialData[i]['phone'], _initialData[i]['checkIn']);
+      final contact = Contact(
+          user: _initialData[i]['user'],
+          phone: _initialData[i]['phone'],
+          checkIn: _initialData[i]['checkIn']);
+
+      await DatabaseHelper.instance.createContact(contact);
     }
     _refreshData();
   }
@@ -144,9 +152,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Add a new user to the database
-  Future<void> addItem() async {
-    await DatabaseHelper.createItem(
-        _userController.text, _phoneController.text, createDate);
+
+  Future addItem() async {
+    final contact = Contact(
+        user: _userController.text,
+        phone: _phoneController.text,
+        checkIn: createDate);
+
+    await DatabaseHelper.instance.createContact(contact);
 
     showToast();
     _refreshData();
@@ -163,12 +176,16 @@ class _HomePageState extends State<HomePage> {
 
   // database filtering for Search feature
   void filterSearch(String query) async {
-    final data = await DatabaseHelper.getItems();
+    final data = await DatabaseHelper.instance.getContact();
 
     if (query.isNotEmpty) {
       var dummyList = [];
       for (var i = 0; i < data.length; i++) {
-        if (data[i]['user'].toLowerCase().contains(query.toLowerCase())) {
+        if (data[i]
+            .user
+            .toString()
+            .toLowerCase()
+            .contains(query.toLowerCase())) {
           dummyList.add(data[i]);
         }
       }
@@ -181,6 +198,7 @@ class _HomePageState extends State<HomePage> {
       setState(
         () {
           _refreshData();
+          searchText.clear();
         },
       );
     }
@@ -198,10 +216,13 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 // sort Ascending/Descending
                 setState(() {
-                  _isDescending = !_isDescending;
+                  _isAscending = !_isAscending;
                 });
               },
-              icon: const Icon(Icons.sort))
+              icon: SvgPicture.asset(
+                'assets/icons/sort-alt.svg',
+                color: Colors.white,
+              ))
         ],
       ),
       body: _isLoading
@@ -212,7 +233,8 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 10.0),
                     // search bar
                     child: TextField(
                       controller: searchText,
@@ -237,6 +259,20 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Container(
+                      height: 30,
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Center(
+                          child: _isAscending
+                              ? const Text('Ascending Order by ID')
+                              : const Text('Descending Order by ID')),
+                    ),
+                  ),
                   Expanded(
                     // if no data = display 'No Contact Found'
                     child: displayData.isEmpty
@@ -246,7 +282,7 @@ class _HomePageState extends State<HomePage> {
                             itemCount: displayData.length,
                             itemBuilder: (context, index) {
                               // sort data ascending or descending
-                              final sortedItems = _isDescending
+                              final sortedItems = !_isAscending
                                   ? displayData.reversed.toList()
                                   : displayData;
 
@@ -256,27 +292,28 @@ class _HomePageState extends State<HomePage> {
                                     horizontal: 8, vertical: 5),
                                 elevation: 1,
                                 child: ListTile(
-                                  title: Text(sortedItems[index]['user']),
-                                  subtitle: Text(sortedItems[index]['phone']),
-                                  trailing: Text(_convertDate(
-                                      sortedItems[index]['checkIn'])),
+                                  title: Text(
+                                      '${sortedItems[index].id} ${sortedItems[index].user}'),
+                                  subtitle: Text('${sortedItems[index].phone}'),
+                                  trailing: Text(
+                                      '${_convertDate(sortedItems[index].checkIn)}'),
                                   onTap: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: ((context) => DetailsPage(
-                                                userValue: sortedItems[index]
-                                                    ['user'],
-                                                phoneValue: sortedItems[index]
-                                                    ['phone'],
-                                                checkInValue: _convertDate(
-                                                    sortedItems[index]
-                                                        ['checkIn'])))));
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                        builder: ((context) => DetailsPage(
+                                            idValue: sortedItems[index].id,
+                                            userValue:
+                                                '${sortedItems[index].user}',
+                                            phoneValue:
+                                                '${sortedItems[index].phone}',
+                                            checkInValue:
+                                                '${_convertDate(sortedItems[index].checkIn)}'))));
                                   },
                                 ),
                               );
                             },
                           ),
                   ),
+                  const SizedBox(height: 90)
                 ],
               ),
               Align(

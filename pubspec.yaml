@@ -37,13 +37,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   smooth_page_indicator:
-  
   intl:
-  flutter_svg:
   sqflite:
   shared_preferences:
   fluttertoast:
-  flame: ^1.4.0
+  flame:
+  flutter_svg:
   
 
 dev_dependencies:
