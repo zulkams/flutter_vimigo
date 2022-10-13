@@ -60,7 +60,7 @@ const List<Map<String?, String?>> _initialData = [
     "checkIn": "2020-08-01 12:10:05"
   },
   {
-    "user": "Chen Saw Ling",
+    "user": "Cheng Sao Long",
     "phone": "016783239",
     "checkIn": "2020-08-23 11:59:05"
   }
