@@ -8,9 +8,7 @@ import 'package:flutter_vimigo/screens/details/details.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 import '../../db/database_helper.dart';
-import 'dart:core';
 
 // initial data as stated in Assessment question page 2
 const List<Map<String?, String?>> _initialData = [
@@ -249,8 +247,8 @@ class _HomePageState extends State<HomePage> {
                         hintText: 'Search contact...',
                         prefixIcon: Icon(
                           Icons.search,
-                          color: Colors.blueAccent,
                         ),
+                        prefixIconColor: Colors.blueAccent,
                         enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.black26)),
                         focusedBorder: OutlineInputBorder(
