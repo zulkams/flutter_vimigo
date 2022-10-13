@@ -293,21 +293,21 @@ class _HomePageState extends State<HomePage> {
                                     horizontal: 8, vertical: 5),
                                 elevation: 1,
                                 child: ListTile(
-                                  title: Text(sortedItems[index]['user']),
-                                  subtitle: Text(sortedItems[index]['phone']),
-                                  trailing: Text(_convertDate(
-                                      sortedItems[index]['checkIn'])),
+                                  title: Text(sortedItems[index].user),
+                                  subtitle: Text(sortedItems[index].phone),
+                                  trailing: Text(
+                                      _convertDate(sortedItems[index].checkIn)),
                                   onTap: () {
                                     Navigator.of(context).push(
                                         MaterialPageRoute(
                                             builder: ((context) => DetailsPage(
-                                                userValue: sortedItems[index]
-                                                    ['user'],
-                                                phoneValue: sortedItems[index]
-                                                    ['phone'],
+                                                userValue:
+                                                    sortedItems[index].user,
+                                                phoneValue:
+                                                    sortedItems[index].phone,
                                                 checkInValue: _convertDate(
                                                     sortedItems[index]
-                                                        ['checkIn'])))));
+                                                        .checkIn)))));
                                   },
                                 ),
                               );

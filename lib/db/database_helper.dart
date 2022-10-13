@@ -69,12 +69,12 @@ class DatabaseHelper {
   }
 
   Future _createDB(Database db, int version) async {
-    final idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-    final textType = 'TEXT NOT NULL';
-    final timeType = 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP';
+    final String idType = "INTEGER PRIMARY KEY AUTOINCREMENT";
+    final textType = "TEXT";
+    final timeType = "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP";
 
     await db.execute(
-        '''CREATE TABLE $tableName (${ContactFields.id} $idType, ${ContactFields.user} $textType, ${ContactFields.phone} $textType, ${ContactFields.checkIn} $timeType''');
+        """CREATE TABLE $tableName (${ContactFields.id} $idType, ${ContactFields.user} $textType, ${ContactFields.phone} $textType, ${ContactFields.checkIn} $timeType)""");
   }
 
   Future<Contact> createItem(Contact contact) async {
